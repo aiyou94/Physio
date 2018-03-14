@@ -41,7 +41,7 @@
       var dps = [];
       var chart = new CanvasJS.Chart("chartContainer", {
         title: {
-          text: "Angle History"
+          text: "Angle"
         },
         axisY: {
           includeZero: false
@@ -57,6 +57,10 @@
       var updateChart = function (angle) {
         var yVal = angle;
         var xVal = Date.now()/1000 - beginTime;
+        if (yVal < 0) {
+          yVal = dps.length>0 ? dps[dps.length-1].y : 0;
+        };
+        console.log(yVal);
         dps.push({
           x: xVal,
           y: yVal
@@ -134,6 +138,8 @@
             updateChart(theta);
             // setInterval(function(){updateChart()}, updateInterval);
           };
+        } else {
+          updateChart(-1);
         };
       });
      initGUIControllers(tracker);
