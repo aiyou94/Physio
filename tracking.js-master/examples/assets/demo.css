@@ -28,9 +28,9 @@
 .demo-frame {
   /*background: url(frame.png) no-repeat;*/
   width: 854px;
-  height: 750px;
+  height: 900px;
   position: fixed;
-  top: 35%;
+  top: 26%;
   left: 50%;
   margin: -329px 0 0 -429px;
   padding: 95px 20px 45px 34px;
@@ -43,7 +43,7 @@
 
 .demo-container {
   width: 100%;
-  height: 650px;
+  height: 800px;
   position: relative;
   /*background: #eee;*/
   overflow: hidden;
