@@ -49,7 +49,7 @@
         }
         return false;
       });
-      var tracker = new tracking.ColorTracker(['yellow']);
+      var tracker = new tracking.ColorTracker(['red', 'yellow', 'blue']);
       tracker.__proto__.minDimension = 5;
       console.log(tracker);
       console.log(tracker.on);
@@ -83,7 +83,7 @@
                 break;
             };
           });
-          color_index = [0, 1, 2];
+          // color_index = [0, 1, 2];
           if ((color_index[0] !== -1) && (color_index[1] !== -1) && (color_index[2] !== -1)) {
             var red = event.data[color_index[0]];
             var yellow = event.data[color_index[1]];
