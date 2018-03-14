@@ -22,13 +22,17 @@
   </style>
 </head>
 <body>
+  <!--
   <div class="demo-title">
     <p><a href="http://trackingjs.com" target="_parent">tracking.js</a></p>
   </div>
+  -->
 
   <div class="demo-frame">
     <div class="demo-container">
-      <div id="chartContainer" style="height: 200px; width: 600px;">
+      <div id="chartContainer" style="height: 150px; width: 600px;">
+      </div>
+      <div id="asContainer" style="height: 150px; width: 600px;">
       </div>
       <video id="video" width="600" height="450" preload autoplay loop muted controls></video>
       <canvas id="canvas" width="600" height="450"></canvas>
@@ -38,8 +42,9 @@
   <script>
     window.onload = function() {
       var beginTime = Date.now()/1000;
-      var dps = [];
-      var chart = new CanvasJS.Chart("chartContainer", {
+      var angle = [];
+      var angular_velocity = [];
+      var chart_angle = new CanvasJS.Chart("chartContainer", {
         title: {
           text: "Angle"
         },
@@ -48,27 +53,55 @@
         },
         data:[{
           type: "line",
-          dataPoints: dps
+          dataPoints: angle
         }]
       });
-      // var updateInterval = 1000;
+      var chart_av = new CanvasJS.Chart("asContainer", {
+        title: {
+          text: "Angular Velocity"
+        },
+        axisY: {
+          includeZero: false
+        },
+        data:[{
+          type: "line",
+          dataPoints: angular_velocity
+        }]
+      });
       var dataLength = 300; // number of dataPoints visible at any point
 
-      var updateChart = function (angle) {
-        var yVal = angle;
+      var updateChart_angle = function (ang) {
+        var yVal = ang;
         var xVal = Date.now()/1000 - beginTime;
         if (yVal < 0) {
-          yVal = dps.length>0 ? dps[dps.length-1].y : 0;
+          yVal = angle.length>0 ? angle[angle.length-1].y : 0;
         };
-        console.log(yVal);
-        dps.push({
+        angle.push({
           x: xVal,
           y: yVal
         });
-        while (dps.length > dataLength) {
-          dps.shift();
+        while (angle.length > dataLength) {
+          angle.shift();
         }
-        chart.render();
+        chart_angle.render();
+      };
+
+      var updateChart_av = function () {
+        var yVal;
+        var xVal = Date.now()/1000 - beginTime;
+        if (angle.length > 1) {
+          yVal = (angle[angle.length-1].y - angle[angle.length-2].y) /(angle[angle.length-1].x - angle[angle.length-2].x);
+        } else {
+          yVal = 0;
+        };
+        angular_velocity.push({
+          x: xVal,
+          y: yVal
+        });
+        while (angular_velocity.length > dataLength) {
+          angular_velocity.shift();
+        }
+        chart_av.render();
       };
 
       var video = document.getElementById('video');
@@ -135,11 +168,12 @@
             context.font = '16px Helvetica';
             context.fillText(theta.toPrecision(4)+'\xB0', yellow.x, yellow.y + yellow.height + 18);
 
-            updateChart(theta);
-            // setInterval(function(){updateChart()}, updateInterval);
+            updateChart_angle(theta);
+            updateChart_av();
           };
         } else {
-          updateChart(-1);
+          updateChart_angle(-1);
+          updateChart_av();
         };
       });
      initGUIControllers(tracker);
