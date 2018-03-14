@@ -38,7 +38,13 @@
       var canvas = document.getElementById('canvas');
       var context = canvas.getContext('2d');
       tracking.ColorTracker.registerColor('red', function(r, g, b) {
-        if (r > 130 && g < 0.5*r && b < 0.5*r) {
+        if (r > 120 && g < 0.5*r && b < 0.5*r) {
+          return true;
+        }
+        return false;
+      });
+      tracking.ColorTracker.registerColor('blue', function(r, g, b) {
+        if (b > 150 && g < 0.8*b && r < 0.6*b) {
           return true;
         }
         return false;
