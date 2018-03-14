@@ -11,6 +11,7 @@
   -->
   <script src="tracking.js-master/examples/assets/stats.min.js"></script>
   <script src="tracking.js-master/examples/assets/color_camera_gui.js"></script>
+  <script src="canvasjs.min.js"></script>
 
   <style>
   video, canvas {
@@ -22,19 +23,54 @@
 </head>
 <body>
   <div class="demo-title">
-    <p><a href="http://trackingjs.com" target="_parent">tracking.js</a> － choose the colors you want to detect through the controls on the right</p>
+    <p><a href="http://trackingjs.com" target="_parent">tracking.js</a></p>
   </div>
 
   <div class="demo-frame">
     <div class="demo-container">
+      <div id="chartContainer" style="height: 200px; width: 600px;">
+      </div>
       <video id="video" width="600" height="450" preload autoplay loop muted controls></video>
       <canvas id="canvas" width="600" height="450"></canvas>
     </div>
   </div>
 
   <script>
-    console.log(Math.PI);
     window.onload = function() {
+      var beginTime = Date.now()/1000;
+      var dps = [];
+      var chart = new CanvasJS.Chart("chartContainer", {
+        title: {
+          text: "Angle"
+        },
+        axisY: {
+          includeZero: false
+        },
+        data:[{
+          type: "line",
+          dataPoints: dps
+        }]
+      });
+      // var updateInterval = 1000;
+      var dataLength = 300; // number of dataPoints visible at any point
+
+      var updateChart = function (angle) {
+        var yVal = angle;
+        var xVal = Date.now()/1000 - beginTime;
+        if (yVal < 0) {
+          yVal = dps.length>0 ? dps[dps.length-1].y : 0;
+        };
+        console.log(yVal);
+        dps.push({
+          x: xVal,
+          y: yVal
+        });
+        while (dps.length > dataLength) {
+          dps.shift();
+        }
+        chart.render();
+      };
+
       var video = document.getElementById('video');
       var canvas = document.getElementById('canvas');
       var context = canvas.getContext('2d');
@@ -52,8 +88,6 @@
       });
       var tracker = new tracking.ColorTracker(['red', 'yellow', 'blue']);
       tracker.__proto__.minDimension = 5;
-      console.log(tracker);
-      console.log(tracker.on);
       tracking.track('#video', tracker, { camera: true });
       tracker.on('track', function(event) {
         context.clearRect(0, 0, canvas.width, canvas.height);
@@ -100,7 +134,12 @@
             var theta = Math.acos(cos) * 180 / Math.PI;
             context.font = '16px Helvetica';
             context.fillText(theta.toPrecision(4)+'\xB0', yellow.x, yellow.y + yellow.height + 18);
+
+            updateChart(theta);
+            // setInterval(function(){updateChart()}, updateInterval);
           };
+        } else {
+          updateChart(-1);
         };
       });
      initGUIControllers(tracker);
