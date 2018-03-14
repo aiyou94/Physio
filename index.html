@@ -43,24 +43,52 @@
         }
         return false;
       });
-      var tracker = new tracking.ColorTracker(['red','yellow']);
+      var tracker = new tracking.ColorTracker(['yellow']);
+      tracker.__proto__.minDimension = 5;
+      console.log(tracker);
+      console.log(tracker.on);
       tracking.track('#video', tracker, { camera: true });
       tracker.on('track', function(event) {
         context.clearRect(0, 0, canvas.width, canvas.height);
-        event.data.forEach(function(rect) {
-          if (rect.color === 'custom') {
-            rect.color = tracker.customColor;
-          }
-          context.strokeStyle = rect.color;
-          context.strokeRect(rect.x, rect.y, rect.width, rect.height);
-          context.font = '11px Helvetica';
-          context.fillStyle = "#fff";
-          context.fillText('x: ' + rect.x + 'px', rect.x + rect.width + 5, rect.y + 11);
-          context.fillText('y: ' + rect.y + 'px', rect.x + rect.width + 5, rect.y + 22);
-          if (rect.color === 'red') {
-            context.fillText('RED', rect.x, rect.y);
+        if (event.data.length !== 3) {
+          event.data.forEach(function(rect) {
+            // if (rect.color === 'custom') {
+            //   rect.color = tracker.customColor;
+            // }
+            context.strokeStyle = rect.color;
+            context.strokeRect(rect.x, rect.y, rect.width, rect.height);
+            context.font = '11px Helvetica';
+            context.fillStyle = "#fff";
+            context.fillText('x: ' + rect.x + 'px', rect.x + rect.width + 5, rect.y + 11);
+            context.fillText('y: ' + rect.y + 'px', rect.x + rect.width + 5, rect.y + 22);
+          });
+        } else {
+          var color_index = [-1, -1, -1];
+          event.data.forEach(function(rect,idx) {
+            switch (rect.color) {
+              case 'red':
+                color_index[0] = idx;
+                break;
+              case 'yellow':
+                color_index[1] = idx;
+                break;
+              case  'blue':
+                color_index[2] = idx;
+                break;
+            };
+          });
+          color_index = [0, 1, 2];
+          if ((color_index[0] !== -1) && (color_index[1] !== -1) && (color_index[2] !== -1)) {
+            var red = event.data[color_index[0]];
+            var yellow = event.data[color_index[1]];
+            var blue = event.data[color_index[2]];
+            context.beginPath();
+            context.moveTo(red.x, red.y);
+            context.lineTo(yellow.x, yellow.y);
+            context.lineTo(blue.x, blue.y);
+            context.stroke();
           };
-        });
+        };
       });
      initGUIControllers(tracker);
     };
