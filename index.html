@@ -33,18 +33,19 @@
   </div>
 
   <script>
+    console.log(Math.PI);
     window.onload = function() {
       var video = document.getElementById('video');
       var canvas = document.getElementById('canvas');
       var context = canvas.getContext('2d');
       tracking.ColorTracker.registerColor('red', function(r, g, b) {
-        if (r > 120 && g < 0.5*r && b < 0.5*r) {
+        if (r > 130 && g < 0.5*r && b < 0.5*r) {
           return true;
         }
         return false;
       });
       tracking.ColorTracker.registerColor('blue', function(r, g, b) {
-        if (b > 150 && g < 0.8*b && r < 0.6*b) {
+        if (b > 100 && g < 0.8*b && r < 0.6*b) {
           return true;
         }
         return false;
@@ -56,19 +57,18 @@
       tracking.track('#video', tracker, { camera: true });
       tracker.on('track', function(event) {
         context.clearRect(0, 0, canvas.width, canvas.height);
-        if (event.data.length !== 3) {
-          event.data.forEach(function(rect) {
-            // if (rect.color === 'custom') {
-            //   rect.color = tracker.customColor;
-            // }
-            context.strokeStyle = rect.color;
-            context.strokeRect(rect.x, rect.y, rect.width, rect.height);
-            context.font = '11px Helvetica';
-            context.fillStyle = "#fff";
-            context.fillText('x: ' + rect.x + 'px', rect.x + rect.width + 5, rect.y + 11);
-            context.fillText('y: ' + rect.y + 'px', rect.x + rect.width + 5, rect.y + 22);
-          });
-        } else {
+        event.data.forEach(function(rect) {
+          // if (rect.color === 'custom') {
+          //   rect.color = tracker.customColor;
+          // }
+          context.strokeStyle = rect.color;
+          context.strokeRect(rect.x, rect.y, rect.width, rect.height);
+          context.font = '11px Helvetica';
+          context.fillStyle = "#fff";
+          context.fillText('x: ' + rect.x + 'px', rect.x + rect.width + 5, rect.y + 11);
+          context.fillText('y: ' + rect.y + 'px', rect.x + rect.width + 5, rect.y + 22);
+        });
+        if (event.data.length == 3)  {
           var color_index = [-1, -1, -1];
           event.data.forEach(function(rect,idx) {
             switch (rect.color) {
@@ -88,11 +88,18 @@
             var red = event.data[color_index[0]];
             var yellow = event.data[color_index[1]];
             var blue = event.data[color_index[2]];
+            context.strokeStyle = '#fff';
             context.beginPath();
-            context.moveTo(red.x, red.y);
-            context.lineTo(yellow.x, yellow.y);
-            context.lineTo(blue.x, blue.y);
+            context.moveTo(red.x + red.width/2, red.y + red.height/2);
+            context.lineTo(yellow.x + yellow.width/2, yellow.y + yellow.height/2);
+            context.lineTo(blue.x + blue.width/2, blue.y + blue.height/2);
             context.stroke();
+            var line1 = [red.x+red.width/2 - yellow.x-yellow.width/2, red.y+red.height/2 - yellow.y-yellow.height/2];
+            var line2 = [blue.x+blue.width/2 - yellow.x-yellow.width/2, blue.y+blue.height/2 - yellow.y-yellow.height/2];
+            var cos = (line1[0]*line2[0] + line1[1]*line2[1])/Math.sqrt(line1[0]*line1[0] + line1[1]*line1[1])/Math.sqrt(line2[0]*line2[0] + line2[1]*line2[1]);
+            var theta = Math.acos(cos) * 180 / Math.PI;
+            context.font = '16px Helvetica';
+            context.fillText(theta.toPrecision(4)+'\xB0', yellow.x, yellow.y + yellow.height + 18);
           };
         };
       });
